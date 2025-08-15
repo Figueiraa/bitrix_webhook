@@ -3,20 +3,27 @@ import uvicorn
 
 app = FastAPI()
 
-# Webhook de saída do Bitrix24
-@app.post("/bitrix-webhook/")
-async def webhook(request: Request):
+# Rota que vai receber o POST do webhook
+@app.post("/webhook")
+async def receber_webhook(request: Request):
     try:
-        data = await request.json()
-        print("📩 Dados recebidos do Bitrix:", data)
-        return {"status": "ok", "received": data}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+        dados = await request.json()  # Captura o corpo da requisição como JSON
+    except Exception:
+        dados = await request.body()  # Caso não seja JSON válido
 
-# Rota simples só para teste de vida
+    print("📩 Dados recebidos do webhook:")
+    print(dados)
+
+    # Aqui você pode tratar e salvar no banco, mandar para outra API, etc.
+    
+    return {"status": "ok", "mensagem": "Webhook recebido com sucesso!"}
+
+
+# Rota para testar se a API está online
 @app.get("/")
-async def root():
-    return {"message": "API do Webhook Bitrix24 está ativa"}
+def home():
+    return {"status": "online", "mensagem": "API FastAPI no Render funcionando!"}
+
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
